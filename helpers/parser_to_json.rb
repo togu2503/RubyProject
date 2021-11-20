@@ -3,34 +3,40 @@ require 'date'
 require 'open-uri'
 require 'nokogiri'
 require 'json'
+require_relative "../helpers/browser_agent.rb"
 
 module ParserToJson
 
     def ParserToJson.parse_html_by_url(web_site_url)
-        # find all jobs on the page
+    	agent = BrowserAgent.new
+    	agent.open_url(web_site_url)
+        # find all jobs on the page 
         html = URI.open(web_site_url.to_s)
         html_document = Nokogiri::HTML(html)
         cars_items = []
-        html_document.css('.ticket-item').each do |car_item|
-            begin
-            	title = car_item.css('.address').text
-            	link = car_item.css('.address')[0]['href']
-            	price = car_item.css('.price-ticket')[0]['data-main-price']
-       	currency = car_item.css('.price-ticket')[0]['data-main-currency']
-       	kilometrage = car_item.css('.js-race').text
+        for i in 1..34 do
+       	html_document.css('.ticket-item').each do |car_item|
+            	begin
+            		title = car_item.css('.address').text
+            		link = car_item.css('.address')[0]['href']
+            		price = car_item.css('.price-ticket')[0]['data-main-price']
+       		currency = car_item.css('.price-ticket')[0]['data-main-currency']
+       		kilometrage = car_item.css('.js-race').text
        	
-            rescue NoMethodError => e
-                puts e
-            end
+            		rescue NoMethodError => e
+                		puts e
+            		end
             
-      	     cars_items.push(
-            title:title,
-            price:price,
-            currency:currency,
-            kilometrage:kilometrage,
-            link:link)
+      	     		cars_items.push(
+            		title:title,
+            		price:price,
+            		currency:currency,
+            		kilometrage:kilometrage,
+            		link:link)
             
-        end
+        		end
+        		agent.next_page
+	end
         cars_items
     end
 
