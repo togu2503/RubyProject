@@ -10,32 +10,32 @@ module ParserToJson
         # find all jobs on the page
         html = URI.open(web_site_url.to_s)
         html_document = Nokogiri::HTML(html)
-
-        news_items = []
-        html_document.css('#content .col-xs-8.col-txt').each do |news_item|
-            puts "start"
-            puts news_item
+        cars_items = []
+        html_document.css('.ticket-item').each do |car_item|
             begin
-                title = news_item.css('.entry-title.text-uppercase').text.strip
-                link = news_item.css('.entry-title.text-uppercase').to_s[/a href="[a-z\-\/:\.0-9]+"/, 0].strip.gsub(/a href=["']+/, '')
-                time = news_item.css('time.published').text.strip
-                text = news_item.css('.entry-excerpt').text.strip
+            	title = car_item.css('.address').text
+            	link = car_item.css('.address')[0]['href']
+            	price = car_item.css('.price-ticket')[0]['data-main-price']
+       	currency = car_item.css('.price-ticket')[0]['data-main-currency']
+       	kilometrage = car_item.css('.js-race').text
+       	
             rescue NoMethodError => e
                 puts e
             end
             
-            news_items.push(
-              title:title,
-              link:link,
-              time:time,
-              text:text
-            )
+      	     cars_items.push(
+            title:title,
+            price:price,
+            currency:currency,
+            kilometrage:kilometrage,
+            link:link)
+            
         end
-        news_items
+        cars_items
     end
 
-    def ParserToJson.make_pretty_json(jobs_hash)
-        JSON.pretty_generate(jobs_hash)
+    def ParserToJson.make_pretty_json(cars_hash)
+        JSON.pretty_generate(cars_hash)
     end
 
     def ParserToJson.save_to_json(file_path, jobs_hash)
